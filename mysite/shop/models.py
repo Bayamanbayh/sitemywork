@@ -1,6 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-class UserProfile(models.Model):
+class UserProfile(AbstractUser):
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
     age = models.PositiveIntegerField(default=0)
@@ -34,6 +35,7 @@ class Product(models.Model):
     created_date = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True, verbose_name='в наличие')
     product_video = models.FileField(upload_to='products_videos/', verbose_name='Видео', null=True, blank=True)
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.product_name
@@ -67,3 +69,21 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.author} - {self.product}'
+
+class Cart(models.Model):
+    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='cart')
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user}'
+
+    def get_total_price(self):
+        return sum(item.get_total_price() for item in self.items.all())
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveSmallIntegerField(default=1)
+
+    def get_total_price(self):
+        return self.product.price * self.quantity
