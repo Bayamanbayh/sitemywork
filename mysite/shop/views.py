@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
-from persmissions import CheckOwner
+from .persmissions import CheckOwner
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -23,7 +23,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [CheckOwner]
 
     def perform_create(self, serializer):
-        return serializer.save(owner=object.request.user)
+        serializer.save(owner=self.request.user)
 
 class ProductPhotoViewSet(viewsets.ModelViewSet):
     queryset = ProductPhoto.objects.all()

@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 
-class UserProfile(AbstractUser):
+
+class UserProfile(models.Model):
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
     age = models.PositiveIntegerField(default=0)
@@ -35,18 +36,10 @@ class Product(models.Model):
     created_date = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True, verbose_name='в наличие')
     product_video = models.FileField(upload_to='products_videos/', verbose_name='Видео', null=True, blank=True)
-    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.product_name
-
-    def get_average_rating(self):
-        ratings = self.ratings.all()
-        if ratings.exists():
-            return round(sum(rating.stars for rating in ratings) / ratings.count(), 1)
-        return 0
-
-
 
 class ProductPhoto(models.Model):
     product = models.ForeignKey(Product, related_name='products', on_delete=models.CASCADE)

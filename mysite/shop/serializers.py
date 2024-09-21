@@ -46,18 +46,11 @@ class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     product = ProductPhotoSerializer(many=True, read_only=True)
     created_date = serializers.DateTimeField(format='%d-%m-%Y')
-    average_rating = serializers.SerializerMethodField()
-    owner = UserProfileSimpleSerializer()
-    
+    owner = UserProfileSimpleSerializer
     class Meta:
         model = Product
         fields = ['product_name', 'category', 'product', 'description', 'price', 'product_video', 'created_date',
-                  'active', 'average_rating', 'created_date', 'ratings', 'reviews', 'owner']
-
-
-
-    def get_average_rating(self, obj):
-        return obj.get_average_rating()
+                  'active', 'created_date', 'ratings', 'reviews', 'owner']
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
