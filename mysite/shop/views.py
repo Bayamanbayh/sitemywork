@@ -1,8 +1,11 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .persmissions import CheckOwner
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ProductFilter
+from rest_framework.filters import SearchFilter
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -16,11 +19,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductListViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializerList
+    permission_classes = [CheckOwner]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = ProductFilter
+    search_fields = ['product_name']
+
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [CheckOwner]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
